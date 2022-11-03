@@ -21,20 +21,23 @@ pragma solidity 0.8.17;
 
 contract　EQRiskShare{
       struct　Round{
-        uint endBlock;
         Entry[] entries;
-
-        uint totalPool;
-        address winner;
+        uint Quantity1;
+        uint Quantity2;
+        uint Quantity3;
+        uint Quantity4;
+        EQ[4];
         }
-
+        
       struct Entry{
         address user;
+        uint round;
         uint quantity;
         uint category;
       }
 
       uint constant public _PRICE = 1 e 16;
+      unit constant public _FirstBlock = 999999999
       mapping(uint=>Round) public rounds;
        uint public round;
        uint public duration;
@@ -43,12 +46,14 @@ contract　EQRiskShare{
       function EQRiskShare (uint_duration) public{
           duration=_duration;
           round=1;
+          rounds[round].firstBlock=block.number;
+          rounds[round].endBlock=block.number+duration;
         }
-      function buyNow(uint _category) payable public{
+      function buy(uint _category,uint _round) payable public{
           require(msg.value%_PRICE==0);
           uint quantity=msg.value/_PRICE;
-          Entry memory entry=Entry(msg.sender,quantity,_category);
-          rounds[round].entries.push(entry);
+          Entry memory entry=Entry(msg.sender,_round,quantity,_category);
+          rounds[_round].entries.push(entry);
           If (_category==1){
              rounds[round].Quantity1+=quantity;
           }
@@ -62,3 +67,4 @@ contract　EQRiskShare{
              rounds[round].Quantity4+=quantity;
           }
         }
+
