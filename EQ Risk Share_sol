@@ -1,0 +1,64 @@
+pragma solidity 0.8.17;
+//This contract shalle be used for global eqrthquake risksharing, which is too significant to take risk for global reinsurers.
+//In other words, this is the decentrarised replacement of retrocession market.
+//This contract structure depends on patent of inSharerance Japan and USA.
+//This contract covers earthquakes of magnitude 7/+, which occur 13 times per year on the globe.
+//These big earthquakes are categorized 4 threads;
+// 1. 10,000/+ people deaths or severe(category 7) nuclear reactors accidents.
+// 2. 1,000 to 9,999 deaths
+// 3. 100 to 999 deaths
+// 4. 0 to 99 deaths
+//Risk sharing is executed every 200,000 block (1 round) about 365/13.
+//New user shall participate risk sharing from next round.
+//Before then they must pay premium of 0.01*n ETH and choose one thread of earthquake.
+//If no earthquake occurs in the round, all premium shall be carried forward to the next round risk sharing with new participants.
+//There is no payback in case cancellation.
+//If magnitude 7/+ earthquake(s) occur, all the paid premiums shall be shared by the participants who choose the occurred category.
+//In case more than 1 earthquakes occurred, the premiums shall be shared by the participants who chhsed the occurred categories).
+//E.g. if thread 1 and 4 occurred, the premium shall be shared by the participants who choose 1 or 4.
+//The next round risk shall be shared by new participants and participants who paid advanced premium.
+//Other detail matters are as following program!!
+
+contract　EQRiskShare{
+      struct　Round{
+        uint endBlock;
+        Entry[] entries;
+
+        uint totalPool;
+        address winner;
+        }
+
+      struct Entry{
+        address user;
+        uint quantity;
+        uint category;
+      }
+
+      uint constant public _PRICE = 1 e 16;
+      mapping(uint=>Round) public rounds;
+       uint public round;
+       uint public duration;
+      mapping(address=>uint) public balances;
+
+      function EQRiskShare (uint_duration) public{
+          duration=_duration;
+          round=1;
+        }
+      function buyNow(uint _category) payable public{
+          require(msg.value%_PRICE==0);
+          uint quantity=msg.value/_PRICE;
+          Entry memory entry=Entry(msg.sender,quantity,_category);
+          rounds[round].entries.push(entry);
+          If (_category==1){
+             rounds[round].Quantity1+=quantity;
+          }
+          Else If(_category==2){
+             rounds[round].Quantity2+=quantity;
+          }
+          Else If(_category==3){
+             rounds[round].Quantity3+=quantity;
+          }
+          Else If(_category==4){
+             rounds[round].Quantity4+=quantity;
+          }
+        }
