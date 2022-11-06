@@ -1,3 +1,24 @@
+プロジェクト概要
+
+このプロジェクトは、保険では対応できないような巨大なリスクや未知のリスクに対し、特許を取得している非中央集権的なリスクシェアの仕組みでソリューションを提供するものです。
+保険に加入できない高齢者の死亡リスクに加え、今回のハッカソンに応募した巨大地震リスク、原子力事故リスク、空き家リスク、認知症のリスク、パンデミックのリスク、ハリケーンリスク等も対象にしていく予定です。
+
+基本的仕組みは、助け合い精神に則り、参加者が拠出した資金をプールし、リスクが発生した時に対象者で資金をシェアするものです。保険の源流の仕組みに近いものになっています。
+
+原子力事故などは、日本国内だけでシェアするのはリスクマネーが不足しているため不可能です。このプロジェクトを世界に広げていく必要があります。
+
+現在、世界的に人々が対立し、分断しようとしていますが、このプロジェクトの実現を通じて、人々のコミュニケーションを活発にし、世界の人々が助け合うことによってより良い世界の実現に貢献したいと思っています。
+
+
+Smart Contractの説明（日本語）
+
+
+
+
+
+Smart contract Overview
+
+
 This contract shall be used for sharing global earthquake risk, which is too large for global reinsurers to take.
 In other words, this is the decentralized replacement of retrocession market.　
 Additionally this also covers nuclear reactor accident of level 7, which current centrarized retrocession market can not cover.  
