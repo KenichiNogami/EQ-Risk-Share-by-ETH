@@ -6,21 +6,21 @@ This contract structure is based on patents of inSharerance　co, based in Japan
 This contract covers earthquakes of magnitude 7/+, which occur around 13 times on average per year on the globe.
 These big earthquakes are categorized into 4 threads;
 
-   Level_4 10000/+ people deaths or severe(category 7) nuclear reactors accidents.
+   Level_4 10000/+ people deaths or severe(level 7) nuclear reactors accidents.
    Level_3 1000 to 9999 deaths
    Level_2 100 to 999 deaths
    Level_1 0 to 99 deaths
 
-Risk sharing is executed every round: 200,000 blocks of ETH, which is round 365.24/13 days
+Risk sharing is executed every round: 200,000 blocks of ETH network, which is round 365.24/13 days
 New user shall participate risk sharing from the next round. In other words not from current runnning round.
-By then, they must pay premium of 0.01*n ETH and choose one thread(s) of earthquake.
-If no earthquake/nuclear reactor accident occurs in the round, all premium shall be carried forward to the next month.
-In the next month this will be used for risk sharing with new participants.
+By then, they must pay premium of 0.01*n ETH and choose (one) thread(s) of earthquake.
+If no earthquake/nuclear reactor accident occurs in the round, all premium shall be carried forward to the next round.
+In the next round this will be used for risk sharing with new participants.
 There is no payback in case of cancellation. There is no fee/risk margin. Everything is used for risk sharing.
-But gas is required by ETH network. Your donation etc. are very appreciated. 
+But gas is required by ETH network to operate this contract. Your donation etc. are very appreciated. 
 If magnitude 7/+ earthquake(s) occur, all paid premiums shall be shared by those participants who chose that specific thread.
-In case more than 1 earthquakes occurred, fund shall be shared only by the most severerest level participants.
-E.g. if Level_1 and Level_4 EQ occurred, the fund shall be shared by the Level_4.
+In case more than 1 earthquakes occurred, the fund shall be shared only by the most severerest level participants.
+E.g. if Level_1 and Level_4 EQ occurred, the fund shall be shared only by the Level_4.
 
 In the contract "riskShare" there are two function for users;
 
@@ -36,7 +36,7 @@ In the contract "riskShare" there are two function for users;
     e.g. If you want to claim round 20 and 21.
       claim(20), claim(21)
   
-Other detail matters are as following program. If there is a contradiction between the two, following program takes precedence.
+Other detail matters are as smart contract. This notation is only for your reference use. If there is a contradiction between the two, smart contract takes precedence.
 
 
 
