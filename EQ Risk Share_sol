@@ -1,70 +1,189 @@
-pragma solidity 0.8.17;
-//This contract shalle be used for global eqrthquake risksharing, which is too significant to take risk for global reinsurers.
-//In other words, this is the decentrarised replacement of retrocession market.
-//This contract structure depends on patent of inSharerance Japan and USA.
-//This contract covers earthquakes of magnitude 7/+, which occur 13 times per year on the globe.
-//These big earthquakes are categorized 4 threads;
-// 1. 10,000/+ people deaths or severe(category 7) nuclear reactors accidents.
-// 2. 1,000 to 9,999 deaths
-// 3. 100 to 999 deaths
-// 4. 0 to 99 deaths
-//Risk sharing is executed every 200,000 block (1 round) about 365/13.
-//New user shall participate risk sharing from next round.
-//Before then they must pay premium of 0.01*n ETH and choose one thread of earthquake.
-//If no earthquake occurs in the round, all premium shall be carried forward to the next round risk sharing with new participants.
-//There is no payback in case cancellation.
-//If magnitude 7/+ earthquake(s) occur, all the paid premiums shall be shared by the participants who choose the occurred category.
-//In case more than 1 earthquakes occurred, the premiums shall be shared by the participants who chhsed the occurred categories).
-//E.g. if thread 1 and 4 occurred, the premium shall be shared by the participants who choose 1 or 4.
-//The next round risk shall be shared by new participants and participants who paid advanced premium.
-//Other detail matters are as following program!!
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 
-contract　EQRiskShare{
-      struct　Round{
+/*
+This contract shall be used for sharing global earthquake risk, which is too large for global reinsurers to take.
+In other words, this is the decentralized replacement of retrocession market.　
+Additionally this also covers nuclear reactor accident of level 7, which current centrarized retrocession market can not cover.  
+
+This contract structure is based on patents of inSharerance　co, based in Japan and USA.
+This contract covers earthquakes of magnitude 7/+, which occur around 13 times on average per year on the globe.
+These big earthquakes are categorized into 4 threads;
+
+   Level_4 10000/+ people deaths or severe(category 7) nuclear reactors accidents.
+   Level_3 1000 to 9999 deaths
+   Level_2 100 to 999 deaths
+   Level_1 0 to 99 deaths
+
+Risk sharing is executed every round: 200,000 blocks of ETH, which is round 365.24/13 days
+New user shall participate risk sharing from the next round. In other words not from current runnning round.
+By then, they must pay premium of 0.01*n ETH and choose one thread(s) of earthquake.
+If no earthquake/nuclear reactor accident occurs in the round, all premium shall be carried forward to the next month.
+In the next month this will be used for risk sharing with new participants.
+There is no payback in case of cancellation. There is no fee/risk margin. Everything is used for risk sharing.
+But gas is required by ETH network. Your donation etc. are very appreciated. 
+If magnitude 7/+ earthquake(s) occur, all paid premiums shall be shared by those participants who chose that specific thread.
+In case more than 1 earthquakes occurred, fund shall be shared only by the most severerest level participants.
+E.g. if Level_1 and Level_4 EQ occurred, the fund shall be shared by the Level_4.
+Other detail matters are as following program. If there is a contradiction between the two, following program takes precedence.
+*/
+
+contract riskShare{
+
+      struct Round {
         Entry[] entries;
-        uint Quantity1;
-        uint Quantity2;
-        uint Quantity3;
-        uint Quantity4;
-        EQ[4];
-        }
-        
-      struct Entry{
-        address user;
-        uint round;
-        uint quantity;
-        uint category;
+        uint256 qt1; //total of quantities on level1
+        uint256 qt2;
+        uint256 qt3;
+        uint256 qt4;
+        uint256 qt8; //carried forward from previous round 
+        uint256 qtt; //total quantities
+        //1-4: actually occured most severe level. 9: no event, and quantities shall be carried forward to next round.         
+        uint256 level; 
+        uint256 qtv; //eth to pay per one quantity
       }
 
-      uint constant public _PRICE = 1 e 16;
-      unit constant public _FirstBlock = 999999999
-      mapping(uint=>Round) public rounds;
-       uint public round;
-       uint public duration;
-      mapping(address=>uint) public balances;
+      struct Entry{
+        address user;
+        uint256 round;
+        uint256 entry_quantity; //value/0.01 ETH
+        uint256 entry_level; //user expects to occur this level
+        uint256 claimed; //1:claimed
+      }
 
-      function EQRiskShare (uint_duration) public{
+      address _OWNER;
+      uint256 constant public _PRICE=1e16;
+      mapping(uint256=>Round) public rounds;
+      mapping(address=>Entry[]) public entries;
+      mapping(address=>uint256) public balances;
+       uint256 public duration;
+       uint256 public startBlock;
+
+      function startEQRiskShare (uint256 _duration) public payable{
+          //require(round==0);
+          require(startBlock==0);
+          _OWNER=msg.sender;
           duration=_duration;
-          round=1;
-          rounds[round].firstBlock=block.number;
-          rounds[round].endBlock=block.number+duration;
+          startBlock=duration+block.number;
+          Entry memory entry=Entry(msg.sender,0,msg.value/_PRICE,1,0);
+          rounds[0].entries.push(entry);
         }
-      function buy(uint _category,uint _round) payable public{
+
+      function buy(uint256 _round,uint256 _level) payable public{
+          require(msg.value>0);
           require(msg.value%_PRICE==0);
-          uint quantity=msg.value/_PRICE;
-          Entry memory entry=Entry(msg.sender,_round,quantity,_category);
+          uint256 _targetblock;
+          uint256 _farblock;
+          _targetblock =_round*duration+startBlock;
+          _farblock =12*duration+block.number;
+          require(_targetblock>block.number);
+          require(_targetblock<_farblock);
+          uint256 _quantity=msg.value/_PRICE;
+          Entry memory entry=Entry(msg.sender,_round,_quantity,_level,0);
           rounds[_round].entries.push(entry);
-          If (_category==1){
-             rounds[round].Quantity1+=quantity;
+          if (_level ==1)
+          {
+             rounds[_round].qt1+=_quantity;
+             rounds[_round].qtt+=_quantity;
           }
-          Else If(_category==2){
-             rounds[round].Quantity2+=quantity;
+          if (_level==2)
+          {
+             rounds[_round].qt2+=_quantity;
+             rounds[_round].qtt+=_quantity;
           }
-          Else If(_category==3){
-             rounds[round].Quantity3+=quantity;
+          if (_level==3)
+          {
+             rounds[_round].qt3+=_quantity;
+             rounds[_round].qtt+=_quantity;
           }
-          Else If(_category==4){
-             rounds[round].Quantity4+=quantity;
+          if (_level==4)
+          {
+             rounds[_round].qt4+=_quantity;
+             rounds[_round].qtt+=_quantity;
           }
         }
 
+        function result (uint256 _r, uint256 _level) public {
+          require(msg.sender==_OWNER);
+          uint256 _round_block=duration*(1+_r)+startBlock;
+          require(block.number>_round_block);
+          require(rounds[_r].level==0);
+          rounds[_r].level=_level;
+          uint256 amount;
+          amount=rounds[_r].qtt;
+            if (_level==1)
+          {
+              if (rounds[_r].qt1>0){
+                  rounds[_r].qtv=(_PRICE*amount)/rounds[_r].qt1;
+                  }
+              else{
+                  _r=_r+1;
+                  rounds[_r].qt8 =amount;
+                  rounds[_r].qtt =amount;
+              }
+          }
+            if (_level==2)
+          {
+              if (rounds[_r].qt2>0){
+                  rounds[_r].qtv=(_PRICE*amount)/rounds[_r].qt2;
+                  }
+              else{
+                  _r=_r+1;
+                  rounds[_r].qt8 =amount;
+                  rounds[_r].qtt =amount;
+              }
+          }
+            if (_level==3)
+          {
+              if (rounds[_r].qt3>0){
+                  rounds[_r].qtv=(_PRICE*amount)/rounds[_r].qt3;
+                  }
+              else{
+                  _r=_r+1;
+                  rounds[_r].qt8 =amount;
+                  rounds[_r].qtt =amount;
+              }
+          }
+            if (_level==4)
+          {
+              if (rounds[_r].qt4>0){
+                  rounds[_r].qtv=(_PRICE*amount)/rounds[_r].qt4;
+                  }
+              else{
+                  _r=_r+1;
+                  rounds[_r].qt8 =amount;
+                  rounds[_r].qtt =amount;
+              }
+          }  
+            if (_level==9)
+          {
+              _r=_r+1;
+              rounds[_r].qt8 =amount;
+              rounds[_r].qtt =amount;
+          }
+        }
+        function claim(uint256 _round) public payable{   
+          Round storage claiming=rounds[_round];
+          require(claiming.level>0);
+          require(claiming.level<5);
+          require(block.number>(_round+2)*duration+startBlock);
+          uint256 _nn;
+          _nn=claiming.entries.length;
+          require(_nn>0);
+          for(uint256 i=0;i<_nn;i++){
+              if (claiming.entries[i].user==msg.sender){
+                  if(claiming.entries[i].entry_level==claiming.level){
+                      require(claiming.entries[i].claimed==0);
+                      rounds[_round].entries[i].claimed=1;
+                      balances[msg.sender]+=claiming.qtv*claiming.entries[i].entry_quantity;
+                  }
+              }
+            }
+          require(balances[msg.sender]>0);
+          uint256 _benefit;
+          _benefit=balances[msg.sender];
+          balances[msg.sender]=0;
+          address _to = payable(msg.sender);
+           payable(_to).transfer(_benefit);
+        }
+}
